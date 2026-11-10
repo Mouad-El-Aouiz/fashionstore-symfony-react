@@ -1,79 +1,93 @@
 # FashionStore
 
-Application e-commerce de démonstration construite avec React et Symfony.
-Le projet présente un catalogue de vêtements, une authentification par cookies,
-une liste de favoris et un panier associé au compte utilisateur.
+[![CI](https://github.com/Mouad-El-Aouiz/fashionstore-symfony-react/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Mouad-El-Aouiz/fashionstore-symfony-react/actions/workflows/ci.yml)
 
-> **Démo :** le paiement en ligne n'est pas encore activé. La page de paiement
-> indique qu'il sera disponible dans une prochaine version.
+FashionStore est une application e-commerce de démonstration en français, développée avec React et Symfony. Elle permet de parcourir un catalogue fictif, de gérer un compte, une liste de favoris et un panier.
+
+> **État du projet :** le paiement en ligne n'est pas activé. La page de paiement indique qu'il sera disponible dans une prochaine version. Le déploiement public est en pause ; ce dépôt est actuellement préparé pour présenter le projet et son code.
+
+## Aperçu
+
+![Page d'accueil FashionStore](./docs/images/homepage.png)
 
 ## Fonctionnalités
 
-- Parcours du catalogue, filtres, recherche et fiches produit
-- Création de compte avec confirmation par e-mail et connexion
-- Gestion de profil et session persistante
-- Favoris et panier pour les utilisateurs connectés
-- Consultation et suivi des commandes existantes
+- Catalogue avec recherche, filtres, catégories et fiches produit
+- Création de compte, connexion et confirmation par e-mail
+- Authentification par cookies `HttpOnly` et protection CSRF
+- Favoris et panier réservés aux utilisateurs connectés
+- Profil utilisateur et consultation des commandes
 - Interface responsive en français
 
 ## Technologies
 
-- **Frontend :** React, Vite, Redux Toolkit, Tailwind CSS
-- **Backend :** Symfony 7.4, PHP 8.3, Doctrine ORM
-- **Base de données :** PostgreSQL 16
-- **Développement local :** Docker Compose
+| Partie | Technologies |
+| --- | --- |
+| Frontend | React 18, Vite, Redux Toolkit, Tailwind CSS |
+| Backend | PHP 8.3, Symfony 7.4, Doctrine ORM |
+| Base de données | PostgreSQL 16 |
+| Environnement local | Docker Compose |
 
 ## Démarrage local
 
-### Backend
+### Prérequis
 
-Depuis `backend-symfony` :
+- Docker Desktop avec Docker Compose
+- Node.js 22 ou une version compatible avec Vite
+
+### 1. Démarrer l'API et les services locaux
+
+Dans PowerShell, depuis le dossier `backend-symfony` :
 
 ```powershell
 Copy-Item .env.example .env
 docker compose up --build -d
 ```
 
-L'API est disponible sur `http://localhost:8001`. L'environnement local utilise
-PostgreSQL et Mailpit ; il ne convient pas à une mise en production.
+L'API est disponible sur `http://localhost:8001`. PostgreSQL utilise le port
+`5433` sur la machine locale, et Mailpit reçoit les e-mails de développement à
+`http://localhost:8025`.
 
-### Frontend
+### 2. Démarrer l'application React
 
-Depuis `frontend` :
+Dans un autre terminal, depuis le dossier `frontend` :
 
 ```powershell
 npm ci
 npm run dev
 ```
 
-Ouvrir `http://localhost:5173`. Vite relaie les appels `/api` vers le backend.
-Les variables locales se configurent à partir des fichiers `.env.example`.
+Ouvrir `http://localhost:5173`. Vite relaie automatiquement les requêtes `/api`
+vers le backend. Les services et identifiants Docker Compose sont réservés au
+développement local.
 
 ## Vérifications
 
+Build du frontend, depuis `frontend` :
+
 ```powershell
+npm ci
 npm run build
 ```
 
-La validation Doctrine et la configuration du backend sont décrites dans
-[backend-symfony/README.md](./backend-symfony/README.md).
+Vérifications du backend, depuis `backend-symfony` après le démarrage de Docker
+Compose :
 
-## Déploiement
+```powershell
+docker compose exec app php bin/console lint:container --env=prod
+docker compose exec app php bin/console lint:yaml config --parse-tags
+docker compose exec app php bin/console doctrine:schema:validate --skip-sync
+```
 
-Le dépôt contient un Blueprint Render et une image de production qui sert le
-frontend et l'API sur la même origine. Cela évite les restrictions de cookies
-entre domaines lors de la connexion.
+Le workflow GitHub Actions exécute ces vérifications à chaque push et pull
+request vers `main`, et vérifie aussi la construction de l'image Docker de
+production.
 
-1. Connecter ce dépôt à Render et créer les ressources depuis `render.yaml`.
-2. Fournir les valeurs demandées pour `JWT_SECRET_KEY_CONTENT`,
-   `JWT_PUBLIC_KEY_CONTENT`, `MAILER_DSN` et `DEFAULT_FROM_EMAIL`.
-3. Générer une paire de clés JWT privée/publique et copier leurs contenus dans
-   les variables secrètes Render. Ne jamais ajouter les fichiers de clés au Git.
-4. Après le premier déploiement, vérifier `/api/health`, puis tester l'inscription,
-   la réception du courriel de confirmation, la connexion, les favoris et le panier.
+## Sécurité et limites de la démo
 
-Le Blueprint active des données de catalogue fictives pour la démonstration.
-L'offre gratuite Render peut se mettre en veille et ses bases gratuites sont
-temporaires : vérifier les limites et la durée de conservation actuelles avant
-de compter sur cette démo à long terme. Le paiement en ligne n'est pas activé.
-Ne jamais publier les fichiers `.env` ou les clés privées JWT.
+- Ne publiez jamais de fichier `.env`, de clé JWT privée ou de secret.
+- Utilisez les paramètres et données fictifs locaux uniquement pour le
+  développement.
+- Le paiement n'est pas disponible ; aucune commande ne peut être payée en ligne.
+- L'envoi de courriels réel et le déploiement public ne sont pas configurés dans
+  ce dépôt pour le moment.

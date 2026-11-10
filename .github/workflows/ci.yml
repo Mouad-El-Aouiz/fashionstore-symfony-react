@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: fashion_store
+          POSTGRES_USER: fashion_store
+          POSTGRES_PASSWORD: fashion_store_ci_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fashion_store -d fashion_store"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      APP_ENV: prod
+      APP_DEBUG: "0"
+      APP_SECRET: github-actions-test-secret
+      CORS_ALLOW_ORIGIN: "^https?://localhost$"
+      DATABASE_URL: "postgresql://fashion_store:fashion_store_ci_dev@127.0.0.1:5432/fashion_store?serverVersion=16&charset=utf8"
+      DEFAULT_FROM_EMAIL: "FashionStore <no-reply@example.test>"
+      DEFAULT_URI: http://localhost
+      FRONTEND_URL: http://localhost
+      JWT_PASSPHRASE: ""
+      JWT_PUBLIC_KEY: config/jwt/public.pem
+      JWT_SECRET_KEY: config/jwt/private.pem
+      MAILER_DSN: null://null
+      TRUSTED_PROXIES: REMOTE_ADDR
+    defaults:
+      run:
+        working-directory: backend-symfony
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_pgsql
+          coverage: none
+
+      - name: Prepare local environment
+        run: cp .env.example .env
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Validate Composer files
+        run: composer validate --no-check-publish
+
+      - name: Lint Symfony configuration
+        run: |
+          php bin/console lint:yaml config --parse-tags
+          php bin/console lint:container --env=prod
+
+      - name: Run database migrations and demo seed
+        run: |
+          php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+          php bin/console app:demo:seed --no-interaction --env=prod
+          php bin/console doctrine:schema:validate --skip-sync --env=prod
+
+  production-image:
+    name: Production Docker image
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker build -f Dockerfile.production -t fashionstore-demo:ci .
