@@ -1,0 +1,14 @@
+.git
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules
+**/vendor
+**/dist
+**/var
+**/config/jwt/*.pem
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+**/secrets.*

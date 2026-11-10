@@ -13,6 +13,9 @@ else
 fi
 
 php bin/console doctrine:migrations:migrate --no-interaction
+if [ "${SEED_DEMO_CATALOG:-false}" = "true" ]; then
+    php bin/console app:demo:seed --no-interaction
+fi
 chown -R www-data:www-data var
 
 exec docker-php-entrypoint "$@"

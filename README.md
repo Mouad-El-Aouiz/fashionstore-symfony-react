@@ -60,6 +60,20 @@ La validation Doctrine et la configuration du backend sont décrites dans
 
 ## Déploiement
 
-Configurer les secrets, domaines, HTTPS, CORS, SMTP et la base de données selon
-l'hébergeur choisi. Ne jamais publier les fichiers `.env` ou les clés privées
-JWT. Prévoir des sauvegardes de base de données avant toute mise en production.
+Le dépôt contient un Blueprint Render et une image de production qui sert le
+frontend et l'API sur la même origine. Cela évite les restrictions de cookies
+entre domaines lors de la connexion.
+
+1. Connecter ce dépôt à Render et créer les ressources depuis `render.yaml`.
+2. Fournir les valeurs demandées pour `JWT_SECRET_KEY_CONTENT`,
+   `JWT_PUBLIC_KEY_CONTENT`, `MAILER_DSN` et `DEFAULT_FROM_EMAIL`.
+3. Générer une paire de clés JWT privée/publique et copier leurs contenus dans
+   les variables secrètes Render. Ne jamais ajouter les fichiers de clés au Git.
+4. Après le premier déploiement, vérifier `/api/health`, puis tester l'inscription,
+   la réception du courriel de confirmation, la connexion, les favoris et le panier.
+
+Le Blueprint active des données de catalogue fictives pour la démonstration.
+L'offre gratuite Render peut se mettre en veille et ses bases gratuites sont
+temporaires : vérifier les limites et la durée de conservation actuelles avant
+de compter sur cette démo à long terme. Le paiement en ligne n'est pas activé.
+Ne jamais publier les fichiers `.env` ou les clés privées JWT.

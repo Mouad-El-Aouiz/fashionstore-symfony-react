@@ -29,16 +29,16 @@ final class SeedDemoCatalogCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $productRepository = $this->entityManager->getRepository(Product::class);
         if ($productRepository->count([]) > 0) {
-            $io->error('The catalogue is not empty. Demo data was not added.');
+            $io->note('The catalogue already contains products. Demo data was not added.');
 
-            return Command::FAILURE;
+            return Command::SUCCESS;
         }
 
         $categoryData = [
             'homme' => ['name' => 'Homme', 'gender' => 'M', 'image' => 'photo-1550995694-3f5f4a7e1bd2'],
             'femme' => ['name' => 'Femme', 'gender' => 'F', 'image' => 'photo-1483985988355-763728e1935b'],
-            'accessoires' => ['name' => 'Accessoires', 'gender' => 'U', 'image' => 'photo-1445205170230-053b83016050'],
-            'sport' => ['name' => 'Sport', 'gender' => 'U', 'image' => 'photo-1517836357463-d25dfeac3438'],
+            'sacs-homme' => ['name' => 'Accessoires Homme', 'gender' => 'M', 'image' => 'photo-1445205170230-053b83016050'],
+            'tenues-de-sport-homme' => ['name' => 'Sport Homme', 'gender' => 'M', 'image' => 'photo-1517836357463-d25dfeac3438'],
         ];
         $categories = [];
 
@@ -57,8 +57,8 @@ final class SeedDemoCatalogCommand extends Command
             ['name' => 'Robe élégante', 'slug' => 'demo-robe-elegante', 'category' => 'femme', 'gender' => 'F', 'description' => 'Une silhouette élégante et facile à porter.', 'price' => '749.00', 'discount' => null, 'featured' => true, 'image' => 'photo-1539008835657-9e8e9680c956'],
             ['name' => 'Pull doux', 'slug' => 'demo-pull-doux', 'category' => 'femme', 'gender' => 'F', 'description' => 'Un pull doux pour composer une tenue confortable.', 'price' => '549.00', 'discount' => '479.00', 'featured' => false, 'image' => 'photo-1576566588028-4147f3842f27'],
             ['name' => 'Chemise fluide', 'slug' => 'demo-chemise-fluide', 'category' => 'femme', 'gender' => 'F', 'description' => 'Une chemise fluide aux détails soignés.', 'price' => '449.00', 'discount' => null, 'featured' => false, 'image' => 'photo-1598554747436-c9293d6a588f'],
-            ['name' => 'Sac de ville', 'slug' => 'demo-sac-de-ville', 'category' => 'accessoires', 'gender' => 'U', 'description' => 'Un sac pratique au design intemporel.', 'price' => '649.00', 'discount' => null, 'featured' => true, 'image' => 'photo-1548036328-c9fa89d128fa'],
-            ['name' => 'Sweat performance', 'slug' => 'demo-sweat-performance', 'category' => 'sport', 'gender' => 'U', 'description' => 'Un sweat confortable pour les journées actives.', 'price' => '499.00', 'discount' => null, 'featured' => false, 'image' => 'photo-1556821840-3a63f95609a7'],
+            ['name' => 'Sac de ville', 'slug' => 'demo-sac-de-ville', 'category' => 'sacs-homme', 'gender' => 'M', 'description' => 'Un sac pratique au design intemporel.', 'price' => '649.00', 'discount' => null, 'featured' => true, 'image' => 'photo-1548036328-c9fa89d128fa'],
+            ['name' => 'Sweat performance', 'slug' => 'demo-sweat-performance', 'category' => 'tenues-de-sport-homme', 'gender' => 'M', 'description' => 'Un sweat confortable pour les journées actives.', 'price' => '499.00', 'discount' => null, 'featured' => false, 'image' => 'photo-1556821840-3a63f95609a7'],
         ];
 
         foreach ($products as $data) {

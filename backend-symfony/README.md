@@ -59,8 +59,7 @@ Rebuild the app image after changing its Dockerfile.
 - Product and category browsing, search, filters, sorting, and pagination
 - Authenticated wishlist and stock-checked cart
 - Order history, detail, cancellation, and tracking
-- Order history, detail, cancellation, and tracking. Checkout currently displays
-  that payment will be available in a future version.
+- Checkout currently displays that payment will be available in a future version.
 
 The browser authentication flow stores access and refresh tokens only in
 `HttpOnly` cookies. Access tokens expire after 15 minutes; refresh tokens rotate
