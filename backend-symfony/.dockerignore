@@ -1,0 +1,9 @@
+.env
+.env.local
+.git
+.gitignore
+.phpunit.cache
+config/jwt/*.pem
+node_modules
+var
+vendor

@@ -1,0 +1,9 @@
+/config/jwt/*.pem
+/var/
+/vendor/
+/.env
+/.env.local
+/.env.*.local
+/.env.dev
+/.env.test
+/public/bundles/

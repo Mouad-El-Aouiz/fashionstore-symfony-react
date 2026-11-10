@@ -1,0 +1,58 @@
+
+services:
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fashion_store}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fashion_store_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-fashion_store}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-fashion_store}", "-U", "${POSTGRES_USER:-fashion_store}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 0
+      APP_SECRET: ${APP_SECRET:-local-dev-secret}
+      CORS_ALLOW_ORIGIN: '${CORS_ALLOW_ORIGIN:-^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$}'
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-fashion_store}:${POSTGRES_PASSWORD:-fashion_store_dev}@database:5432/${POSTGRES_DB:-fashion_store}?serverVersion=16&charset=utf8"
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-FashionStore <no-reply@fashionstore.local>}
+      DEFAULT_URI: ${DEFAULT_URI:-http://localhost:8000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE:-}
+      JWT_PUBLIC_KEY: /app/config/jwt/public.pem
+      JWT_SECRET_KEY: /app/config/jwt/private.pem
+      MAILER_DSN: smtp://mailpit:1025
+      PHP_CLI_SERVER_WORKERS: 4
+    depends_on:
+      database:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    ports:
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
+    volumes:
+      - .:/app
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+    - "127.0.0.1:1025:1025"
+    - "127.0.0.1:8025:8025"
+###< doctrine/doctrine-bundle ###
+
+volumes:
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###
